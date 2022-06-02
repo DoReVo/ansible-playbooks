@@ -1,0 +1,40 @@
+
+- hosts: local_vm
+  name: Set up firewalld
+  become: true
+
+  tasks:
+    - name: "Enable ssh service"
+      ansible.posix.firewalld:
+        immediate: true
+        permanent: true
+        service: ssh
+        state: enabled
+        
+    - name: "Disable cockpit service"
+      ansible.posix.firewalld:
+        immediate: true
+        permanent: true
+        service: cockpit
+        state: disabled    
+
+    - name: "Enable dhcpv6-client service"
+      ansible.posix.firewalld:
+        immediate: true
+        permanent: true
+        service: dhcpv6-client
+        state: enabled
+
+    - name: "Enable http service"
+      ansible.posix.firewalld:
+        immediate: true
+        permanent: true
+        service: http
+        state: enabled  
+
+    - name: "Enable https service"
+      ansible.posix.firewalld:
+        immediate: true
+        permanent: true
+        service: https
+        state: enabled          

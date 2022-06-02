@@ -1,0 +1,26 @@
+
+- hosts: local_vm
+  name: Add caddy repo, install caddy, enable and start caddy service
+  become: true
+
+  tasks:
+    - name: "Install dnf-command(copr)"
+      dnf:
+        name: "dnf-command(copr)"
+        state: latest      
+
+    - name: "Enable caddy repository"
+      ansible.builtin.command:
+        cmd: "dnf copr enable -y @caddy/caddy"
+  
+    - name: "Install caddy v2 server"
+      dnf:
+        name: "caddy"
+        state: latest
+
+    - name: "Enable and run caddy"
+      ansible.builtin.systemd:
+        name: caddy
+        enabled: true
+        state: started
+

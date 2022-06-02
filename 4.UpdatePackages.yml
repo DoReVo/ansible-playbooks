@@ -1,0 +1,12 @@
+
+- hosts: local_vm
+  name: Update all currently installed packages
+  become: true
+
+  tasks:
+      - name: Upgrade all packages
+        dnf:
+          name: "*"          
+          state: latest
+          update_only: true
+            

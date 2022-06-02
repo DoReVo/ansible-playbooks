@@ -1,0 +1,41 @@
+
+- hosts: local_vm
+  name: Ensure user is created and have ssh key set
+  become: true
+
+  # Change accordingly
+  vars:
+    username: admin
+    userpassword: "123"
+
+  tasks:
+  # To generate hashed password, run the command below, replace `mypassword` with your password of choice
+  # ansible all -i localhost, -m debug -a "msg={{ 'mypassword' | password_hash('sha512', 'mysecretsalt') }}"
+    - name: "Create {{username}} user with password and home directory"
+      ansible.builtin.user:
+        name: "{{ username }}"
+        password: "{{ userpassword | password_hash('sha512') }}"
+        comment: "Default admin account for rocky-main"
+        state: present
+        remove: no
+        create_home: yes
+        groups:
+          - wheel
+
+    # Please ensure there is a directory named `ssh-keys` in this current folder
+    # and inside it is the public key call id_rsa.pub
+    - name: Add public key to user's authorized_keys
+      ansible.posix.authorized_key:
+        user: "{{ username }}"
+        exclusive: yes
+        key: "{{ lookup('file', './ssh-keys/id_rsa.pub') }}"
+        comment: "Added during ansible setup"
+        state: present
+
+    - name: "Enable passwordless sudo" 
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^%wheel'
+        line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'

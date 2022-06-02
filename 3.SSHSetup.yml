@@ -1,0 +1,32 @@
+---
+- hosts: local_vm
+  name: Configure SSHD to disable, password login, remote root login 
+  become: true
+
+  tasks:
+    - name: Disable empty password login
+      lineinfile: 
+        dest: "/etc/ssh/sshd_config" 
+        regexp: '^#?PermitEmptyPasswords' 
+        line: 'PermitEmptyPasswords no'
+
+    - name: Disable remote root login
+      lineinfile: 
+        dest: "/etc/ssh/sshd_config" 
+        regexp: '^#?PermitRootLogin' 
+        line: 'PermitRootLogin no'
+
+    - name: Disable password login
+      lineinfile: 
+        dest: "/etc/ssh/sshd_config" 
+        regexp: '^(#\s*)?PasswordAuthentication '
+        line: 'PasswordAuthentication no'
+
+    - name: Enable PAM
+      lineinfile: 
+        dest: "/etc/ssh/sshd_config" 
+        regexp: '^#?UsePAM' 
+        line: 'UsePAM yes'
+
+    - name: restart sshd
+      service: name=sshd state=restarted

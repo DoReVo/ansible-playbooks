@@ -1,0 +1,23 @@
+
+# Please ensure known_hosts file already exist in ~/.ssh folder
+- hosts: local_vm
+  name: Ensure servers public ssh keys are on our machine
+  gather_facts: no
+
+  tasks:
+    - name: Scan for SSH host keys.
+      local_action:
+        module: shell
+        cmd: "ssh-keyscan -trsa {{ inventory_hostname }}"
+      changed_when: False
+      register: ssh_scan
+
+    - name: Update known_hosts.
+      local_action:
+        module: known_hosts
+        key: "{{ item }}"
+        name: "{{ inventory_hostname }}"
+      with_items: "{{ ssh_scan.stdout_lines }}"
+
+    # - debug:
+        # var: ssh_scan.stdout_lines
